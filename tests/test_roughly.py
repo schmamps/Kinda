@@ -15,99 +15,141 @@ EQ = 'eq'
 GT = 'gt'
 
 
-def param_test(a_val, b_val, actual_comp, rel_tol, abs_tol):
-    # type: (float, float, str, Any, Any) -> tuple
-    """Generate test fixture
+def get_place_values(places):
+    # type: (int) -> tuple
+    """Get values of `a`, `b`, and tolerance for decimal `places`
 
     Returns:
-        tuple -- (kwargs for function, is_lt, is_eq, accept_approximate)
+        tuple[float, float, float, float] --
+            (`b - tol`, `b`, `b + tol`, tolerance)
     """
-    arg_dict = {'a': a_val, 'b': b_val, 'rel_tol': rel_tol, 'abs_tol': abs_tol}
-    kwargs = {key: val for key, val in arg_dict.items() if val is not None}
+    diff = 1.0 / pow(10, places)
+    eq_val = float('1.' + '0' * max(1, places))
+    lt_val = eq_val - diff
+    gt_val = eq_val + diff
+
+    return lt_val, eq_val, gt_val
+
+
+def get_tol_values(places):
+    # type: (float) -> list
+    """List of tolerances to test
+
+    Returns:
+        list[tuple[float, float]] -- [(abs_tol, rel_tol)]
+    """
+    abs_tol = 1.1 / pow(10, places)
+    return [(None, None), (abs_tol, None)]
+
+
+def get_comp_values(place_vals, places, abs_tol, rel_tol):
+    # type: (tuple, int, Any, Any) -> list
+    """List comparisons to test
+
+    Returns:
+        list[tuple[float, float, str]] -- [(a, b, comparison)]
+    """
+    lt_val, eq_val, gt_val = place_vals
+    eq_comp = (eq_val, eq_val, EQ)
+    eq_tol_only = places > 8 and abs_tol is None and rel_tol is None
+
+    if eq_tol_only:
+        return [eq_comp]
+
+    return [(lt_val, eq_val, LT), eq_comp, (gt_val, eq_val, GT)]
+
+
+def get_test_args(val_a, val_b, abs_tol, rel_tol):
+    # type: (float, float, Any, Any) -> dict
+    """Get essential arguments for test function call as dict (for splatting)
+
+    Removes values of `None`
+
+    Returns:
+        dict[str, Any] -- {a, b, rel_tol, abs_tol}
+    """
+
+    arg_dict = {'a': val_a, 'b': val_b, 'rel_tol': rel_tol, 'abs_tol': abs_tol}
+
+    return {key: val for key, val in arg_dict.items() if val is not None}
+
+
+def get_test_params(val_a, val_b, actual_comp, abs_tol, rel_tol):
+    # type: (float, float, str, Any, Any) -> tuple
+    """Generate test params
+
+    Returns:
+        tuple[dict, bool, bool, bool] -- (kwargs, is_lt, is_eq, approx)
+    """
+    kwargs = get_test_args(val_a, val_b, abs_tol, rel_tol)
+    is_lt = (actual_comp == LT)
+    is_eq = (actual_comp == EQ)
     approx = rel_tol is not None or abs_tol is not None
 
-    return (kwargs, actual_comp == LT, actual_comp == EQ, approx)
+    return (kwargs, is_lt, is_eq, approx)
 
 
-def format_pair(key, val):
-    # type: (str, str) -> str
+def format_tol(tol):
+    # type: (Any) -> Any
+    """Format `tol` if is not `None` else `None`
+
+    Returns:
+        str -- formatted value
+    """
+    return tol if tol is None else 'to_places'
+
+
+def format_pair(kv_tuple):
+    # type: (tuple) -> str
     """Generate key/value pair
 
     Returns:
-        str -- key=val
+        str -- 'key=val'
     """
-    return '='.join([key, val])
+    return '{}={}'.format(*kv_tuple)
 
 
-def format_num(num, places, if_none='default'):
-    # type: (Any, int, str) -> str
-    """Format `num` to decimal `places` if not None, else `if_none`
-
-    Returns:
-        str -- formatted string
-    """
-    if num is None:
-        return if_none
-
-    return '{{:.{}f}}'.format(places).format(num)
-
-
-def id_test(actual_comp, rel_tol, abs_tol, places):
-    # type: (str, Any, Any, int) -> str
-    """Generate test ID
+def get_test_id(actual_comp, abs_tol, rel_tol, places):
+    # type: (str, float, float, int) -> str
+    """Generate test ID with salient information
 
     Returns:
         str -- test ID
     """
     crumbs = [
-        format_pair('actual', actual_comp),
-        format_pair('places', str(places)),
-        format_pair('rel', format_num(rel_tol, places, '')),
-        format_pair('abs', format_num(abs_tol, places, '')), ]
+        ('actual', actual_comp),
+        ('places', places),
+        ('abs_tol', format_tol(abs_tol)),
+        ('rel_tol', format_tol(rel_tol)), ]
 
-    return ','.join([crumb for crumb in crumbs if len(crumb) > 4])
-
-
-def run_test(compare, kwargs, expected):
-    # type: (Any, dict, bool) -> None
-    """Assert `compare(**kwargs) == expected`"""
-    received = compare(**kwargs)
-
-    if received != expected:
-        breakpoint()
-        pass  # pylint: disable=unnecessary-pass
-
-    assert received == expected
+    return ','.join([
+        format_pair(crumb)
+        for crumb in crumbs
+        if crumb[1] is not None])
 
 
 def permute_tests(start, stop, step):
-    # type: (int, int, int) -> tuple
-    """Generate list of tests and IDs
+    """Generate test params and IDs
 
     Returns:
         tuple[list[tuple], list[str]] -- (test_params, test_ids)
     """
-    values = []
+    params = []
     ids = []
-
     for places in range(start, stop, step):
-        inc = 1.0 / pow(10, places)
-        val_b = float('1.' + '0' * max(1, places))
-        lt_b = val_b - inc
-        gt_b = val_b + inc
+        place_vals = get_place_values(places)
 
-        for abs_tol in [None, inc * 1.01]:
-            for val_a, nom_comp in [(lt_b, LT), (val_b, EQ), (gt_b, GT), ]:
-                # avoid defaults for longer numbers
-                if places < 9 or abs_tol is not None:
-                    actual_comp = nom_comp if abs_tol is None else EQ
+        for abs_tol, rel_tol in get_tol_values(places):
+            comparisons = get_comp_values(
+                place_vals, places, abs_tol, rel_tol)
 
-                    values.append(
-                        param_test(val_a, val_b, actual_comp, None, abs_tol))
-                    ids.append(
-                        id_test(actual_comp, None, abs_tol, places))
+            for val_a, val_b, actual_comp in comparisons:
+                params.append(get_test_params(
+                    val_a, val_b, actual_comp, abs_tol, rel_tol))
+                ids.append(get_test_id(
+                    actual_comp, abs_tol, rel_tol, places))
 
-    return values, ids
+    return params, ids
 
 
 def parametrize(test_func, test_data):
@@ -123,7 +165,19 @@ def parametrize(test_func, test_data):
     return mark.parametrize(argnames, argvalues, ids=test_data[1])
 
 
-TEST_DATA = permute_tests(1, 14, 1)
+TEST_DATA = permute_tests(0, 97, 12)
+
+
+def run_test(compare, kwargs, expected):
+    # type: (Any, dict, bool) -> None
+    """Wrap around `assert compare(**kwargs) == expected`"""
+    received = compare(**kwargs)
+
+    if received != expected:
+        breakpoint()
+        pass  # pylint: disable=unnecessary-pass
+
+    assert received == expected
 
 
 @parametrize(roughly.eq, TEST_DATA)
