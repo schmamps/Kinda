@@ -3,7 +3,7 @@ from sys import version_info
 
 from pytest import mark
 
-import roughly
+import kinda
 
 # pylint: disable=unused-import
 if version_info >= (3, 5, 0):
@@ -180,7 +180,7 @@ def run_test(compare, kwargs, expected):
     assert received == expected
 
 
-@parametrize(roughly.eq, TEST_DATA)
+@parametrize(kinda.eq, TEST_DATA)
 # pylint: disable=unused-argument
 def test_eq(func, kwargs, is_lt, is_eq, approx):
     # type: (Any, dict, bool, bool, bool) -> None
@@ -188,7 +188,7 @@ def test_eq(func, kwargs, is_lt, is_eq, approx):
     run_test(func, kwargs, is_eq or approx)
 
 
-@parametrize(roughly.ne, TEST_DATA)
+@parametrize(kinda.ne, TEST_DATA)
 # pylint: disable=unused-argument
 def test_ne(func, kwargs, is_lt, is_eq, approx):
     # type: (Any, dict, bool, bool, bool) -> None
@@ -196,7 +196,7 @@ def test_ne(func, kwargs, is_lt, is_eq, approx):
     run_test(func, kwargs, not is_eq and not approx)
 
 
-@parametrize(roughly.lt, TEST_DATA)
+@parametrize(kinda.lt, TEST_DATA)
 # pylint: disable=unused-argument
 def test_lt(func, kwargs, is_lt, is_eq, approx):
     # type: (Any, dict, bool, bool, bool) -> None
@@ -204,7 +204,7 @@ def test_lt(func, kwargs, is_lt, is_eq, approx):
     run_test(func, kwargs, is_lt and not approx)
 
 
-@parametrize(roughly.gt, TEST_DATA)
+@parametrize(kinda.gt, TEST_DATA)
 # pylint: disable=unused-argument
 def test_gt(func, kwargs, is_lt, is_eq, approx):
     # type: (Any, dict, bool, bool, bool) -> None
@@ -212,7 +212,7 @@ def test_gt(func, kwargs, is_lt, is_eq, approx):
     run_test(func, kwargs, not is_lt and not is_eq and not approx)
 
 
-@parametrize(roughly.le, TEST_DATA)
+@parametrize(kinda.le, TEST_DATA)
 # pylint: disable=unused-argument
 def test_le(func, kwargs, is_lt, is_eq, approx):
     # type: (Any, dict, bool, bool, bool) -> None
@@ -220,7 +220,7 @@ def test_le(func, kwargs, is_lt, is_eq, approx):
     run_test(func, kwargs, is_lt or is_eq or approx)
 
 
-@parametrize(roughly.ge, TEST_DATA)
+@parametrize(kinda.ge, TEST_DATA)
 def test_ge(func, kwargs, is_lt, is_eq, approx):
     # type: (Any, dict, bool, bool, bool) -> None
     """Test greater than/equality"""

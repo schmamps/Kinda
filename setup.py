@@ -1,19 +1,36 @@
-import glob
-# pylint: disable=no-name-in-module,import-error
-from distutils.core import setup
-# get all of the scripts
-scripts = glob.glob('bin/*')
+"""Setup Script"""
+import setuptools
 
-setup(
-  name='roughly',
-  packages=['roughly'],
-  version='1.0',
-  description='A library for pythonic comparison of floating point numbers',
-  author='Andrew Champion',
-  author_email='awchampion@gmail.com',
-  url='https://github.com/schmamps/Roughly.git',
-  download_url='https://github.com/schmamps/Roughly/tarball/1.0',
-  keywords=['floating point', 'comparison'],
-  scripts=[],
-  classifiers=[],
+
+def readme():
+    # type: () -> str
+    """Load README.md
+
+    Returns:
+        str -- contents of README
+    """
+    with open("README.md", "r") as fp:  # pylint: disable=invalid-name
+        return fp.read()
+
+
+setuptools.setup(
+    name='kinda',
+    version='0.9.9',
+    author='Andrew Champion',
+    author_email='awchampion@gmail.com',
+    description='A pythonic library for floating point number comparison',
+    long_description=readme(),
+    long_description_content_type='text/markdown',
+    url='https://github.com/schmamps/Kinda/',
+    packages=['kinda'],
+    keywords=['floating point', 'comparison'],
+    scripts=[],
+    classifiers=[
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 )

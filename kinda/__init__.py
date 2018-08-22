@@ -12,8 +12,8 @@ else:
 
 # pylint: disable=cyclic-import,import-self
 if version_info[0] < 3:
-    from roughly import eq, ne, lt, gt, ge, le          # type: ignore  # noqa
+    from kinda import eq, ne, lt, gt, ge, le        # type: ignore  # noqa
 
 else:
-    from roughly.roughly import eq, ne, lt, gt, ge, le  # type: ignore  # noqa
+    from kinda.kinda import eq, ne, lt, gt, ge, le  # type: ignore  # noqa
 # pylint: enable=cyclic-import,import-self
