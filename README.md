@@ -5,12 +5,15 @@
 Kinda is a pythonic library for comparing floating point values with
 [Python operator functions](https://docs.python.org/2/library/operator.html#mapping-operators-to-functions).
 
-## Arguments
+## Installation
 
-The implementation and documentation are identical to
-[math.isclose](https://docs.python.org/3/library/math.html#number-theoretic-and-representation-functions).
+Kinda is available as a package.
 
-## Comparisons
+```sh
+pip install kinda
+```
+
+## Comparison
 
 ### Equality
 
@@ -19,28 +22,34 @@ The implementation and documentation are identical to
 >>> # a == b
 >>> kinda.eq(1.0000, 1.0000)
 True
->>> # a != b (default precision)
+>>> # a != b
 >>> kinda.eq(0.9999, 1.0001)
 False
 ```
 
-### Precision
+### Tolerances
 
-All `math.isclose()` arguments are accepted in all functions.
+All functions take the same arguments and defaults of
+[`math.isclose()`](https://docs.python.org/3/library/math.html)
+and make use the native function when available.
 
-* `abs_tol`: absolute tolerance (`abs(a - b)`)
-* `rel_tol`: percentage tolerance (1% = .01)
+For complete details, refer to that function's documentation,
+but as an overview, those keyword arguments are:
+
+* `abs_tol`: absolute difference (`bigger - smaller)`)
+* `rel_tol`: difference coefficient (`bigger * rel_tol`)
 
 ```py
+>>> import kinda
 >>> # reduce absolute precision
 >>> kinda.eq(0.9999, 1.0001, abs_tol=0.0002)
 True
->>> # precision: 1%
->>> kinda.eq(1.0000, 1.0500, rel_tol=0.01)
-False
->>> # precision: 5%
+>>> # reduce relative precision to 5%
 >>> kinda.eq(1.0000, 1.0500, rel_tol=0.05)
 True
+>>> # reduce relative precision to 1%
+>>> kinda.eq(1.0000, 1.0500, rel_tol=0.01)
+False
 ```
 
 ### Inequality
