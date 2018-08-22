@@ -33,8 +33,8 @@ All functions take the same arguments and defaults of
 [`math.isclose()`](https://docs.python.org/3/library/math.html)
 and make use the native function when available.
 
-For complete details, refer to that function's documentation,
-but as an overview, those keyword arguments are:
+The keyword arguments listed below are for reference.
+Refer to the math module documentation for more detailed information.
 
 * `abs_tol`: absolute difference (`bigger - smaller)`)
 * `rel_tol`: difference coefficient (`bigger * rel_tol`)
