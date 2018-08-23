@@ -9,7 +9,7 @@ def readme():
     Returns:
         str -- contents of README
     """
-    with open("README.md", "r") as fp:  # pylint: disable=invalid-name
+    with open('README.md', 'r') as fp:  # pylint: disable=invalid-name
         return fp.read()
 
 
@@ -30,7 +30,7 @@ setuptools.setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
     ],
 )
